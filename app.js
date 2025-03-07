@@ -8,13 +8,12 @@ app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-
+// { address: '192.168.21.0/24' }
 app.get('/', async (req, res) => {
     try {
         find({ address: '192.168.21.0/24' }).then((devices) => {
-            console.log(`🚀 ~ find ~ devices:`, devices);
+            console.log(`🚀 ~ find ~ devices:`, devices, devices.length);
             return res.render('initialPage', { devices });
-            return devices; // Return devices if needed
         });
     } catch (error) {}
 });
