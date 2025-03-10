@@ -18,7 +18,7 @@
 
             .container {
                 display: flex;
-                width: 55%;
+                /* width: 55%; */
                 height: 90vh;
                 max-width: 1200px;
                 background-color: white;
@@ -39,7 +39,7 @@
             .ips-container {
                 display: flex;
                 flex-direction: column;
-                width: 300px;
+                width: 350px;
                 padding: 20px;
                 overflow-y: auto;
                 max-height: 80vh;
@@ -108,15 +108,19 @@
     </head>
     <body>
         <div class="container">
-            <div class="form-container">
+            <form class="form-container" method="POST" action="/send">
                 <h1>IP Input</h1>
-                <input type="text" class="input-field" placeholder="Enter IP" id="ip-input" />
-                <input type="file" class="select-file" id="file-input" />
-                <button class="submit-btn" id="submit-btn">Submit</button>
+                <input type="text" name="ip" class="input-field" placeholder="Enter IP" id="ip-input" />
+                <input type="file" name="file" class="select-file" id="file-input" />
+                <button type="submit" class="submit-btn" id="submit-btn">Submit</button>
                 <!-- Added submit button -->
-            </div>
+            </form>
             <div class="ips-container">
-                <h1>List of IPs</h1>
+                <% if (devices && devices.length > 0) { %>
+                <h1>List of IPs: <%= devices.length %></h1>
+                <% } else { %>
+                <p class="no-ips">No IPs available</p>
+                <% } %>
                 <div class="ips">
                     <% if (devices && devices.length > 0) { %> <% devices.forEach(function(ip) { %>
                     <div class="ip"><%= ip.ip %></div>
@@ -127,12 +131,4 @@
             </div>
         </div>
     </body>
-    <script>
-        // Optional JavaScript for handling the form submission
-        document.getElementById('submit-btn').addEventListener('click', function () {
-            const ip = document.getElementById('ip-input').value;
-            const file = document.getElementById('file-input').files[0];
-            console.log(ip, file);
-        });
-    </script>
 </html>
