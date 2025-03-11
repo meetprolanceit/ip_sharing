@@ -1,44 +1,49 @@
 const express = require('express');
-const find = require('local-devices');
-
-const PORT = process.env.PORT || 3000;
+const nmap = require('node-nmap');
+const fs = require('fs');
 const app = express();
+const PORT = 3000;
 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-// { address: '192.168.21.0/24' }
+
 
 app.get('/', async (req, res) => {
     try {
-        find({ address: '192.168.21.0/24' }).then((devices) => {
-            console.log(`🚀 ~ find ~ devices:`, devices, devices.length);
-            return res.render('initialPage', { devices });
+        const scan = new nmap.NmapScan('192.168.21.0/24', '-sn');
+
+        scan.on('complete', function (data) {
+            console.log('Devices found:', data);
+            res.render('initialPage.ejs', { devices: data });
         });
+
+        scan.on('error', function (error) {
+            console.error('Scan error:', error);
+            res.status(500).send('Error occurred during the scan');
+        });
+        scan.startScan();
     } catch (error) {
-        console.log(`🚀 ~ app.get ~ error:`, error);
+        // Catch any errors in the try block
+        console.error('Error occurred:', error);
+        res.status(500).send('Error occurred while finding devices');
     }
 });
 
-const net = require('net');
-const fs = require('fs');
-const path = require('path');
-
-const serverHost = '192.168.21.17';
-const port = 3000;
-
-app.post('/send', async (req, res) => {
-    try {
-        const a = req.body;
-        console.log(`🚀 ~ app.post ~ a:`, a);
-
-        res.json(a);
-    } catch (error) {
-        console.log(`🚀 ~ app.post ~ error:`, error);
+app.post('/send', (req, res) => {
+    const { ip, file: fileName } = req.body;
+    if (req.socket.remoteAddress !== `192.168.21.17`) {
+        console.log('req.socket.remoteAddress', req.socket.remoteAddress);
     }
 });
 
+// Handle receiving the file
+app.get('/upload', (req, res) => {
+    console.log(`🚀 ~ app.get ~ req:`, req.socket.remoteAddress);
+});
+
+// Start the server
 app.listen(PORT, () => {
-    console.log(`Server is running on port : ${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
